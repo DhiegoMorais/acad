@@ -1,0 +1,123 @@
+<html class="no-js" lang="pt-br" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+
+<h:head>
+	<title>Cadastro de Atividade</title>
+</h:head>
+
+<h:body onload="#{cadastroDocumento.listarDocumentos()}">
+	<h:form id="mainForm">
+
+		<!-- onclick="PF('novaAtividade').show();" -->
+		<!-- onclick="PF('ajuda').show();" -->
+
+		<p:panel id="custom" header="Atividades" style="margin-bottom:20px">
+			<h:panelGrid columns="2">
+				<p:commandButton id="novoButton" value="Novo"
+					update=":mainForm:modalNovo" process="@this" icon="ui-icon-plus"
+					action="#{cadastroDocumento.prepararAdicao()}" />
+				<p:commandButton type="button" value="Ajuda"
+					update=":mainForm:modalAjuda" process="@this" icon="ui-icon-help"
+					style="margin-left: 1107px;" onclick="PF('ajuda').show();" />
+			</h:panelGrid>
+
+			<br></br>
+			<p:outputPanel id="list-container" layout="block" process="@this">
+				<p:dataTable id="atividadeTable" rows="10" var="documento"
+					value="#{cadastroDocumento.documento}" paginator="true"
+					paginatorPosition="bottom"
+					emptyMessage="Nenhuma atividade cadastrada." process="@this">
+
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="Nome da Atividade" />
+						</f:facet>
+						<h:outputText value="#{documento.nome}" />
+					</p:column>
+
+					<p:column style="width:60px">
+						<f:facet name="header">
+							<h:outputText value="Ações" />
+						</f:facet>
+						<p:commandLink process="@this" 
+							onclick="PF('confirmDeleteDialog').show();">
+							<p:graphicImage value="/img/apagar.png" id="imagemExcluir" />
+							<p:tooltip id="toolTipExcluir" for="imagemExcluir"
+								value="Excluir" />
+							<f:setPropertyActionListener target="#{cadastroDocumento.documento}"
+								value="#{documento}" />
+						</p:commandLink>
+
+						<h:outputText value="&#160;&#160;&#160;&#160;" escape="false" />
+
+						<p:commandLink process="@this" update=":mainForm:modalNovo"
+							action="#{cadastroDocumento.prepararEdicao(documento)}">
+							<p:graphicImage value="/img/editar.png" id="imagemAlterar" />
+							<p:tooltip id="toolTipAlterar" for="imagemAlterar" value="Editar" />
+							<f:setPropertyActionListener target="#{cadastroDocumento.documento}"
+								value="#{documento}" />
+						</p:commandLink>
+					</p:column>
+
+				</p:dataTable>
+			</p:outputPanel>
+		</p:panel>
+
+
+		<p:dialog id="modalNovo" header="Cadastro de Documento"
+			widgetVar="novaAtividade" resizable="false" closeOnEscape="true"
+			draggable="false" visible="#{cadastroDocumento.exibirEditor()}" modal="true">
+			<p:outputLabel value="* Nome da Atividade:" for="descricao" />
+			<p:inputText id="descricao" value="#{cadastroDocumento.documento.nome}" />
+			<br></br>
+			<br></br>
+			<h:outputText value="* Campo Obrigatório" style="margin-left: 100px;" />
+			<br></br>
+			<br></br>
+			<p:commandButton value="Salvar" process=":mainForm:modalNovo"
+				action="#{cadastroDocumento.gravarDocumento()}"
+				update=":mainForm:list-container"
+				onclick="PF('novaAtividade').hide()" icon="ui-icon-disk"
+				style="margin-left: 150px;" />
+			<p:commandButton value="Cancelar" process="@this" icon="ui-icon-cancel"
+				action="#{cadastroDocumento.cancelarEdicao()}"
+				onclick="PF('novaAtividade').hide()" />
+		</p:dialog>
+
+
+		<p:dialog id="modalAjuda" widgetVar="ajuda" header="Ajuda"
+			closeOnEscape="true" draggable="false" resizable="false" modal="true">
+			<br></br>
+			<p:outputLabel
+				value="Clique no botão 'Novo' para cadastrar uma atividade. 
+		Exclua ou edite a atividade, caso necessário." />
+			<br></br>
+			<br></br>
+			<p:commandButton value="Voltar" process="@this"
+				onclick="PF('ajuda').hide()" icon="ui-icon-back"
+				style="margin-left: 375px;" />
+		</p:dialog>
+
+
+		<p:dialog id="modalExclusao" header="Exclusão de Atividade"
+			widgetVar="confirmDeleteDialog" modal="true">
+			<p:hotkey bind="esc" handler="confirmDeleteDialog.hide();" />
+			<p:outputLabel
+				value="Tem certeza de que deseja excluir esta atividade?" />
+			<br></br>
+			<br></br>
+			<br></br>
+			<p:commandButton value="Sim" action="#{cadastroAtividade.excluirAtividade()}"
+				onclick="PF('confirmDeleteDialog').hide();" process="@this"
+				update=":mainForm:list-container" style="margin-left: 275px;" />
+			<p:commandButton value="Não" process="@this" action="#{cadastroAtividade.cancelarEdicao()}"
+				onclick="PF('confirmDeleteDialog').hide();" />
+		</p:dialog>
+
+	</h:form>
+</h:body>
+</html>
